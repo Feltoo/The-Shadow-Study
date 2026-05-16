@@ -25,6 +25,19 @@ function App() {
     const { gameState, startGame, updateGameState } = useGameState();
     const [detailTarget, setDetailTarget] = useState(null);
 
+    const handleStartGame = () => {
+        // Request fullscreen on game start
+        const el = document.documentElement;
+        if (el.requestFullscreen) {
+            el.requestFullscreen().catch(() => {});
+        } else if (el.webkitRequestFullscreen) {
+            el.webkitRequestFullscreen();
+        } else if (el.msRequestFullscreen) {
+            el.msRequestFullscreen();
+        }
+        startGame();
+    };
+
     // Keyboard shortcut for UV Mode
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -186,7 +199,7 @@ function App() {
                                     <span className="polaroid-caption">Suspect Unknown</span>
                                 </div>
 
-                                <button className="open-file-btn" onClick={startGame}>OPEN CASE FILE</button>
+                                <button className="open-file-btn" onClick={handleStartGame}>OPEN CASE FILE</button>
                             </div>
                         </div>
                     </div>
