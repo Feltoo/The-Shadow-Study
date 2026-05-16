@@ -35,6 +35,7 @@ body {
     align-items: center;
     overflow: hidden;
     line-height: 1.6;
+    zoom: 0.9;
 }
 
 /* Animated CRT Scanline / Dust Effect */
