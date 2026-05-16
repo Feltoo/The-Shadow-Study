@@ -1,0 +1,1458 @@
+:root {
+    --bg-color: #0b0c10;
+    --panel-bg: #1f2833;
+    --text-primary: #c5c6c7;
+    --text-secondary: #8b949e;
+    --accent-color: #66fcf1;
+    --accent-hover: #45a29e;
+    --danger-color: #ff3b30;
+    --success-color: #34c759;
+
+    /* Paper/Clipboard colors */
+    --paper-bg: #e2d8c3;
+    --paper-text: #2c2a27;
+    --ink-color: #1a1a1a;
+
+    --font-ui: 'Inter', sans-serif;
+    --font-heading: 'Playfair Display', serif;
+    --font-typewriter: 'Special Elite', monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-ui);
+    background-color: var(--bg-color);
+    background-image: radial-gradient(circle at center, #3e2723 0%, #1a110a 70%, #000 100%);
+    color: var(--text-primary);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    line-height: 1.6;
+}
+
+/* Animated CRT Scanline / Dust Effect */
+body::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+    background-size: 100% 4px;
+    z-index: 999;
+    pointer-events: none;
+    opacity: 0.7;
+    animation: scanlines 10s linear infinite;
+}
+
+@keyframes scanlines {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100vh; }
+}
+
+#app {
+    width: 100%;
+    max-width: 1300px;
+    height: 92vh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+    background: transparent;
+    overflow: hidden;
+}
+
+/* Desk Header */
+.menu-header { display: none; }
+.in-game-header {
+    position: absolute;
+    top: 20px;
+    left: 40px;
+    right: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.desk-plate {
+    position: relative;
+    background: #fdfbf7; /* Paper white */
+    color: #111; /* Typewriter black */
+    padding: 10px 30px 10px 45px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    font-family: var(--font-typewriter);
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 3px 6px 15px rgba(0,0,0,0.6);
+    transform: rotate(-3deg);
+    pointer-events: auto;
+    background-image: repeating-linear-gradient(transparent, transparent 29px, rgba(0,0,0,0.03) 30px);
+}
+
+/* Evidence Tag Hole with metal ring */
+.desk-plate::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    background: #1a110a; /* Dark to look like a hole revealing the desk */
+    border-radius: 50%;
+    box-shadow: inset 1px 1px 4px rgba(0,0,0,0.9), 0 0 0 2px #d0d0d0, 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.desk-plate::after {
+    display: none;
+}
+
+.desk-timer {
+    background: #111;
+    border: 3px solid #333;
+    border-radius: 5px;
+    padding: 10px 20px;
+    color: #ff3b30;
+    font-family: 'Courier Prime', monospace;
+    font-size: 28px;
+    font-weight: bold;
+    box-shadow: 3px 6px 15px rgba(0,0,0,0.8), inset 0 0 8px rgba(0,0,0,0.8);
+    text-align: center;
+    transform: rotate(2deg);
+    pointer-events: auto;
+}
+
+.timer-label {
+    color: #888;
+    font-size: 12px;
+    font-family: var(--font-ui);
+    letter-spacing: 3px;
+    margin-bottom: 5px;
+}
+
+.desk-mode {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    gap: 30px;
+    padding: 90px 40px 40px 40px; /* Space for the floating header */
+}
+
+#game-container {
+    flex: 2.5; /* Increased ratio to make scene box bigger */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: #fcfbf9; /* Photo paper back */
+    padding: 10px 10px 45px 10px; /* Polaroid style border */
+    border-radius: 2px;
+    box-shadow: 15px 25px 50px rgba(0,0,0,0.9);
+    border: 1px solid #ccc;
+    transform: rotate(-1deg);
+    margin: 20px 0 20px 40px;
+    max-height: calc(100vh - 130px);
+    transition: all 0.5s ease;
+}
+
+/* Global UV Mode Shift */
+body.uv-mode-active #game-container {
+    border-color: #d03cf5;
+    box-shadow: 0 0 30px rgba(208, 60, 245, 0.2), inset 0 0 20px rgba(208, 60, 245, 0.1);
+}
+
+.view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Room Navigation (Physical Tabs) */
+#room-nav {
+    display: flex;
+    gap: -5px; /* Overlap slightly */
+    position: absolute;
+    top: -45px;
+    left: 20px;
+    z-index: -1;
+}
+
+.room-nav-btn {
+    padding: 12px 30px 25px 30px;
+    font-size: 15px;
+    font-family: var(--font-typewriter);
+    font-weight: bold;
+    background: #c1b181;
+    color: #333;
+    border: 1px solid #a39260;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.2);
+    transform: rotate(0deg);
+}
+
+.room-nav-btn:hover:not(.locked) {
+    background: #d4c495;
+    transform: translateY(-5px);
+}
+
+.room-nav-btn.active {
+    background: #e2d2a4;
+    color: #111;
+    border-color: #8b7355;
+    transform: translateY(-10px);
+    box-shadow: inset 0 15px 20px rgba(255,255,255,0.4), 0 -5px 15px rgba(0,0,0,0.4);
+    z-index: 2;
+}
+
+.room-nav-btn.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #9a8a5b;
+}
+
+/* Room Layers */
+.room-layer {
+    position: relative;
+    flex: 1;
+    border-radius: 8px;
+    background-color: #000;
+    /* Deep vignette inset shadow to blend edges */
+    box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.95), inset 0 0 50px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+    transition: box-shadow 0.5s ease;
+    animation: randomLightingFlicker 14s infinite;
+}
+
+@keyframes randomLightingFlicker {
+    0%    { filter: brightness(1) contrast(1); }
+    20%   { filter: brightness(1) contrast(1); }
+    
+    /* Smooth, slow dim */
+    22%   { filter: brightness(0.3) contrast(1.2); }
+    25%   { filter: brightness(0.3) contrast(1.2); }
+    27%   { filter: brightness(1) contrast(1); }
+
+    55%   { filter: brightness(1) contrast(1); }
+    
+    /* Another smooth dim */
+    56%   { filter: brightness(0.2) contrast(1.3); }
+    59%   { filter: brightness(0.2) contrast(1.3); }
+    60%   { filter: brightness(1) contrast(1); }
+    
+    85%   { filter: brightness(1) contrast(1); }
+    
+    /* Deep power sag */
+    87%   { filter: brightness(0.1) contrast(1.5); }
+    90%   { filter: brightness(0.1) contrast(1.5); }
+    92%   { filter: brightness(1) contrast(1); }
+    
+    100%  { filter: brightness(1) contrast(1); }
+}
+
+body.uv-mode-active .room-layer {
+    /* Blend the deep shadow with a subtle glowing UV purple */
+    box-shadow: inset 0 0 150px rgba(20, 0, 30, 0.95), inset 0 0 50px rgba(80, 10, 100, 0.6);
+}
+
+#room-study {
+    background: url('/assets/det_office.png') center/cover no-repeat;
+}
+
+#room-lab {
+    background: url('/assets/det_lab.png') center/cover no-repeat;
+}
+
+#room-archive {
+    background: url('/assets/det_server.png') center/cover no-repeat;
+}
+
+#room-tunnel {
+    background: url('/assets/det_vent.png') center/cover no-repeat;
+}
+
+/* Tactile Interactables */
+.interactable {
+    position: absolute;
+    background: transparent;
+    cursor: crosshair;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    z-index: 5;
+}
+
+.interactable:hover {
+    background: rgba(255, 255, 255, 0.03);
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.15), 0 0 10px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: brightness(1.2) contrast(1.1);
+    z-index: 10;
+}
+
+/* Study Hotspots */
+#obj-clock {
+    top: 8%;
+    left: 18%;
+    width: 15%;
+    height: 80%;
+    border-radius: 4px;
+}
+
+#obj-board {
+    top: 5%;
+    left: 35%;
+    width: 30%;
+    height: 45%;
+    border-radius: 4px;
+}
+
+#obj-safe {
+    top: 60%;
+    left: 40%;
+    width: 15%;
+    height: 35%;
+    border-radius: 10px;
+}
+
+#obj-desk {
+    top: 65%;
+    left: 60%;
+    width: 35%;
+    height: 30%;
+    border-radius: 10px;
+}
+
+#obj-bookshelf {
+    top: 5%;
+    left: 72%;
+    width: 25%;
+    height: 60%;
+    border-radius: 4px;
+}
+
+#obj-door {
+    top: 5%;
+    left: 3%;
+    width: 15%;
+    height: 65%;
+    border-radius: 4px;
+}
+
+/* Lab Hotspots */
+#obj-locker {
+    top: 5%;
+    left: 1%;
+    width: 15%;
+    height: 90%;
+    border-radius: 4px;
+}
+
+#obj-workbench {
+    top: 25%;
+    left: 39%;
+    width: 24%;
+    height: 50%;
+    border-radius: 8px;
+}
+
+#obj-generator {
+    top: 60%;
+    left: 20%;
+    width: 20%;
+    height: 35%;
+    border-radius: 8px;
+}
+
+#obj-vault {
+    top: 7%;
+    left: 65%;
+    width: 24%;
+    height: 60%;
+    border-radius: 8px;
+}
+
+/* Archive Hotspots */
+#obj-cabinet {
+    top: 8%;
+    left: 85%;
+    width: 17%;
+    height: 83%;
+    border-radius: 4px;
+}
+
+#obj-monitors {
+    top: 60%;
+    left: 10%;
+    width: 40%;
+    height: 35%;
+    border-radius: 8px;
+}
+
+#obj-fusebox {
+    top: 3%;
+    left: 3%;
+    width: 15%;
+    height: 45%;
+    border-radius: 4px;
+}
+
+#obj-blastdoor {
+    top: 5%;
+    left: 60%;
+    width: 18%;
+    height: 70%;
+    border-radius: 8px;
+}
+
+/* Tunnel Hotspots */
+#obj-fancontrol {
+    top: 40%;
+    left: 5%;
+    width: 20%;
+    height: 40%;
+    border-radius: 8px;
+}
+
+#obj-transformer {
+    top: 52%;
+    left: 77%;
+    width: 15%;
+    height: 35%;
+    border-radius: 8px;
+}
+
+#obj-grate {
+    top: 43%;
+    left: 30%;
+    width: 40%;
+    height: 50%;
+    border-radius: 8px;
+}
+
+#obj-hatch {
+    top: 5%;
+    left: 38%;
+    width: 24%;
+    height: 14%;
+    border-radius: 50%;
+}
+
+/* UV Reveal */
+.uv-reveal {
+    opacity: 0;
+    transition: opacity 0.3s;
+    color: #d03cf5;
+    text-shadow: 0 0 15px #d03cf5;
+    font-weight: bold;
+}
+
+.uv-mode-active .uv-reveal {
+    opacity: 1;
+}
+
+/* The Dossier (Detail View) */
+#detail-view {
+    position: absolute;
+    top: 5%;
+    left: 10%;
+    right: 10%;
+    bottom: 5%;
+    background: var(--paper-bg);
+    /* Subtle paper noise texture via linear-gradient trick */
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.02) 2px, rgba(0, 0, 0, 0.02) 4px);
+    color: var(--paper-text);
+    z-index: 30;
+    border-radius: 4px;
+    padding: 40px;
+    border: 1px solid #b5a893;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 0 5px rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#detail-view::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 40px 40px 0;
+    border-color: transparent #c3b091 transparent transparent;
+    box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px) rotate(2deg);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0) rotate(0);
+        opacity: 1;
+    }
+}
+
+#detail-title {
+    font-size: 32px;
+    color: #111;
+    border-bottom: 2px solid #111;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+#detail-content {
+    flex: 1;
+    overflow-y: auto;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* The Clipboard (Sidebar) */
+#sidebar {
+    flex: 0 0 320px;
+    background: linear-gradient(135deg, #d4c5b3, #b8a082);
+    border-radius: 8px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    color: var(--ink-color);
+}
+
+/* Hardware Clip on the Clipboard */
+.clipboard-clip {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 40px;
+    background: linear-gradient(to bottom, #f0f0f0, #a0a0a0, #707070);
+    border-radius: 4px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5), inset 0 2px 2px rgba(255, 255, 255, 0.8);
+    z-index: 10;
+}
+
+.clipboard-clip::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 10px;
+    right: 10px;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+}
+
+.panel {
+    padding: 30px 20px 20px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.panel h3 {
+    margin-bottom: 15px;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #5a4b3c;
+    border-bottom: 1px dashed #99856f;
+    padding-bottom: 5px;
+}
+
+/* Polaroids / Inventory */
+#inventory-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+#inventory-list li {
+    background: #fff;
+    padding: 8px 8px 20px 8px;
+    border-radius: 2px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    font-size: 13px;
+    font-family: var(--font-heading);
+    font-weight: bold;
+    color: #111;
+    cursor: pointer;
+    transition: 0.2s;
+    transform: rotate(-2deg);
+    position: relative;
+}
+
+#inventory-list li:nth-child(even) {
+    transform: rotate(3deg);
+}
+
+#inventory-list li:hover {
+    transform: scale(1.1) rotate(0deg);
+    z-index: 5;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Tape effect for polaroids */
+#inventory-list li::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-5deg);
+    width: 30px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+#inventory-list .empty-text {
+    background: transparent;
+    box-shadow: none;
+    color: #887863;
+    font-style: italic;
+    transform: none;
+    font-weight: normal;
+    font-family: var(--font-typewriter);
+}
+
+#inventory-list .empty-text::before {
+    display: none;
+}
+
+/* Typewritten Log */
+#log-messages {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-family: var(--font-typewriter);
+    font-size: 15px;
+    padding-right: 10px;
+}
+
+#log-messages p {
+    color: var(--ink-color);
+    line-height: 1.5;
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+    /* Ink bleed effect */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding-bottom: 8px;
+}
+
+.log-new {
+    animation: typeIn 0.3s ease-out forwards;
+    opacity: 0;
+    transform: translateY(5px);
+}
+
+@keyframes typeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Form Elements on Dossier */
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"] {
+    background: rgba(0, 0, 0, 0.05);
+    border: none;
+    border-bottom: 2px solid #5a4b3c;
+    color: var(--ink-color);
+    padding: 10px 15px;
+    border-radius: 4px 4px 0 0;
+    font-family: var(--font-typewriter);
+    font-size: 18px;
+    font-weight: bold;
+    outline: none;
+    width: 100%;
+    transition: background 0.3s;
+}
+
+input:focus {
+    background: rgba(0, 0, 0, 0.1);
+    border-color: #111;
+}
+
+/* Buttons */
+.btn {
+    background: transparent;
+    color: #111;
+    border: 2px solid #111;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    background: #111;
+    color: #fff;
+}
+
+.btn.primary {
+    background: #111;
+    color: #fff;
+    border-color: #444;
+}
+
+.btn.primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-color);
+    color: #fff;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 5px 15px rgba(102, 252, 241, 0.3);
+    text-shadow: 0 0 5px rgba(255,255,255,0.5);
+}
+
+.btn.primary:active {
+    transform: translateY(1px) scale(0.98);
+    box-shadow: 0 2px 5px rgba(102, 252, 241, 0.2);
+}
+
+#back-btn {
+    margin-bottom: 20px;
+    align-self: flex-start;
+}
+
+/* Detail Content Styling */
+.detail-box {
+    margin-bottom: 25px;
+}
+
+.detail-box h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Torn Clue Paper */
+blockquote,
+.clue-text {
+    font-family: var(--font-typewriter);
+    font-size: 1.2em;
+    color: #000;
+    background: #f4ecd8;
+    padding: 20px;
+    margin: 15px 0;
+    line-height: 1.6;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.3);
+    transform: rotate(-1deg);
+    position: relative;
+}
+
+.clue-text h4 {
+    color: #111 !important;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+}
+
+/* Overlays */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.overlay-content {
+    background: #fdfbf7;
+    padding: 60px 50px 50px 50px;
+    border-radius: 2px;
+    border: 1px solid #ccc;
+    text-align: center;
+    max-width: 550px;
+    box-shadow: 15px 20px 50px rgba(0, 0, 0, 0.9);
+    color: #111;
+    transform: rotate(2deg); /* physical rotation */
+    background-image: repeating-linear-gradient(transparent, transparent 29px, rgba(0,0,0,0.03) 30px);
+    position: relative;
+}
+
+/* Paper clip for overlay document */
+.overlay-content::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 26px;
+    height: 60px;
+    background: transparent;
+    border: 4px solid #888;
+    border-radius: 13px;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    z-index: 10;
+}
+
+#overlay-title {
+    font-family: var(--font-typewriter);
+    font-size: 45px;
+    font-weight: 900;
+    margin-top: 10px;
+    margin-bottom: 30px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    /* Physical Stamp effect */
+    border: 5px solid currentColor;
+    padding: 10px 20px;
+    display: inline-block;
+    transform: rotate(-3deg);
+    opacity: 0.85;
+}
+
+#overlay-message {
+    font-family: var(--font-typewriter);
+    font-size: 20px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Specific styling for the Restart button on this paper */
+.overlay-content .btn {
+    background: #111;
+    color: #fdfbf7;
+    border: 2px solid #000;
+    padding: 15px 30px;
+    font-size: 18px;
+    letter-spacing: 2px;
+    box-shadow: 3px 5px 10px rgba(0,0,0,0.4);
+    transform: rotate(1deg);
+}
+
+.overlay-content .btn:hover {
+    background: #333;
+    transform: rotate(1deg) scale(1.05);
+}
+
+/* Case File Menu Specifics */
+.desk-bg {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle at center, #3e2723 0%, #1a110a 70%, #000 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.case-folder {
+    position: relative;
+    width: 720px;
+    min-height: 520px;
+    height: auto;
+    background: #e2d2a4;
+    border-radius: 4px 8px 8px 8px;
+    box-shadow: 10px 20px 40px rgba(0,0,0,0.8), inset 0 0 50px rgba(139, 115, 85, 0.5);
+    border: 1px solid #c1b181;
+    color: #2c2a27;
+    animation: dropFolder 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    transform: rotate(-2deg);
+    margin-bottom: 20px;
+}
+
+@keyframes dropFolder {
+    0% { transform: scale(1.5) rotate(10deg) translateY(-200px); opacity: 0; box-shadow: 20px 50px 80px rgba(0,0,0,0.5); }
+    100% { transform: scale(1) rotate(-2deg) translateY(0); opacity: 1; box-shadow: 10px 20px 40px rgba(0,0,0,0.8); }
+}
+
+.folder-tab {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    width: 250px;
+    height: 40px;
+    background: #e2d2a4;
+    border-radius: 8px 8px 0 0;
+    border: 1px solid #c1b181;
+    border-bottom: none;
+    font-family: var(--font-heading);
+    font-weight: bold;
+    font-size: 18px;
+    padding: 10px 20px;
+    letter-spacing: 2px;
+    box-shadow: inset 0 10px 20px rgba(139, 115, 85, 0.2);
+}
+
+.folder-content {
+    padding: 40px 40px 80px 40px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.stamp-title {
+    position: absolute;
+    top: 20px;
+    right: -10px;
+    color: #cc0000;
+    font-family: var(--font-typewriter);
+    font-size: 32px;
+    font-weight: 900;
+    border: 4px solid #cc0000;
+    padding: 5px 15px;
+    border-radius: 6px;
+    transform: rotate(15deg);
+    opacity: 0.8;
+    text-shadow: 0 0 2px rgba(204,0,0,0.5);
+    letter-spacing: 4px;
+    z-index: 3;
+}
+
+.case-name {
+    font-family: var(--font-typewriter);
+    font-size: 28px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #111;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+    width: 80%;
+}
+
+.stapled-note {
+    background: #fdfbf7;
+    width: 420px;
+    padding: 20px 25px;
+    font-family: var(--font-typewriter);
+    font-size: 15px;
+    line-height: 1.6;
+    color: #111;
+    box-shadow: 2px 4px 10px rgba(0,0,0,0.2);
+    transform: rotate(-2deg);
+    position: relative;
+    margin-top: 5px;
+    z-index: 2;
+}
+
+.stapled-note p {
+    margin: 0;
+    text-align: left;
+}
+
+.staple {
+    position: absolute;
+    top: 10px;
+    left: 15px;
+    width: 15px;
+    height: 4px;
+    background: linear-gradient(to right, #999, #eee, #999);
+    border-radius: 2px;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    transform: rotate(25deg);
+}
+
+.polaroid-decor {
+    position: absolute;
+    bottom: 60px;
+    right: 40px;
+    background: #fff;
+    padding: 10px 10px 30px 10px;
+    box-shadow: 3px 6px 15px rgba(0,0,0,0.4);
+    transform: rotate(10deg);
+    width: 150px;
+    z-index: 1;
+}
+
+.polaroid-decor .photo {
+    background: #222;
+    height: 130px;
+    width: 100%;
+    margin-bottom: 10px;
+    border: 1px solid #111;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+}
+
+.polaroid-caption {
+    font-family: var(--font-typewriter);
+    font-size: 14px;
+    color: #111;
+    display: block;
+    text-align: center;
+}
+
+.open-file-btn {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #8b0000;
+    color: #fff;
+    border: 2px solid #4a0000;
+    padding: 15px 40px;
+    font-size: 18px;
+    font-family: var(--font-heading);
+    font-weight: bold;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,255,0.2);
+    transition: all 0.2s;
+    letter-spacing: 2px;
+}
+
+.open-file-btn:hover {
+    background: #a00000;
+    transform: translateX(-50%) translateY(-2px) scale(1.05);
+    box-shadow: 0 15px 25px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.3);
+}
+.open-file-btn:active {
+    transform: translateX(-50%) translateY(2px) scale(0.98);
+}
+
+/* Effects */
+.flicker-effect {
+    animation: roomFlicker 0.15s infinite;
+}
+
+@keyframes roomFlicker {
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(0.3);
+    }
+}
+
+.shake-effect {
+    animation: screenShake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+@keyframes screenShake {
+
+    10%,
+    90% {
+        transform: translate3d(-2px, 0, 0);
+    }
+
+    20%,
+    80% {
+        transform: translate3d(4px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-6px, 0, 0);
+    }
+
+    40%,
+    60% {
+        transform: translate3d(6px, 0, 0);
+    }
+}
+
+#vignette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 25;
+    background: radial-gradient(circle, transparent 50%, rgba(0, 0, 0, 0.8) 100%);
+    transition: background 2s ease;
+}
+
+.danger-vignette {
+    background: radial-gradient(circle, transparent 30%, rgba(255, 0, 0, 0.3) 100%) !important;
+    animation: dangerPulse 1s infinite;
+}
+
+@keyframes dangerPulse {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* Clipboard Sidebar */
+#sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #e8dbb8; /* Paper color */
+    padding: 50px 30px 30px 30px;
+    border-radius: 4px;
+    box-shadow: 10px 20px 40px rgba(0,0,0,0.9);
+    border-left: 1px solid #ccc;
+    border-right: 2px solid #a89b78;
+    border-bottom: 2px solid #a89b78;
+    position: relative;
+    transform: rotate(1.5deg);
+    margin: 20px 40px 20px 0;
+    max-width: 440px; /* Increased from 380px for a larger board */
+    background-image: repeating-linear-gradient(transparent, transparent 29px, #ccc 30px);
+}
+
+.clipboard-clip {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 45px;
+    background: linear-gradient(to bottom, #f0f0f0 0%, #a0a0a0 100%);
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.8);
+    border: 1px solid #666;
+    z-index: 5;
+}
+
+/* Typography styles for panels */
+.stamp-h3 {
+    color: #cc0000;
+    font-family: var(--font-typewriter);
+    font-size: 18px;
+    font-weight: 900;
+    border-bottom: 2px solid #cc0000;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+    opacity: 0.85;
+}
+
+.typewriter-font {
+    font-family: var(--font-typewriter);
+    font-size: 14px;
+    line-height: 1.6;
+    color: #222;
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+}
+
+#inventory-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+    padding-bottom: 10px;
+    border-bottom: 2px dashed rgba(0,0,0,0.15);
+    margin-bottom: 10px;
+}
+
+#inventory-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-family: var(--font-typewriter);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+#inventory-list li {
+    padding: 3px 7px;
+    background: rgba(0,0,0,0.04);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    white-space: nowrap;
+}
+
+.empty-text {
+    color: #888;
+    font-style: italic;
+    padding: 10px;
+    text-align: center;
+}
+
+/* ========================================= */
+/* Puzzle Detail Overlay: "The Evidence Report" */
+/* ========================================= */
+
+#detail-view {
+    position: absolute;
+    /* Match the photo area of the polaroid exactly! */
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 45px;
+    background: #fdfbf7; /* Paper white/cream */
+    padding: 30px 40px; 
+    border-radius: 2px;
+    box-shadow: 10px 15px 40px rgba(0,0,0,0.8), inset 0 0 50px rgba(0,0,0,0.05);
+    border: 1px solid #ccc;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    /* Subtle paper texture */
+    background-image: repeating-linear-gradient(transparent, transparent 29px, rgba(0,0,0,0.03) 30px);
+    
+    /* Animation: Adjusting itself */
+    animation: dropInEvidence 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    transform-origin: top center;
+}
+
+@keyframes dropInEvidence {
+    0% {
+        opacity: 0;
+        transform: translateY(-30px) rotate(-3deg) scale(1.02);
+    }
+    70% {
+        opacity: 1;
+        transform: translateY(2px) rotate(1deg) scale(1);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) rotate(0.5deg) scale(1);
+    }
+}
+
+/* A physical paperclip holding the report */
+#detail-view::after {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: 40px;
+    width: 20px;
+    height: 50px;
+    background: transparent;
+    border: 3px solid #999;
+    border-radius: 10px;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    z-index: 105;
+}
+
+#detail-content {
+    flex: 1;
+    background: transparent; /* Text sits directly on paper */
+    color: #222; /* Ink color */
+    overflow-y: auto;
+    position: relative;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Left align like a document */
+    justify-content: flex-start;
+}
+
+#detail-title {
+    position: static;
+    transform: none;
+    font-family: var(--font-typewriter);
+    font-size: 26px;
+    font-weight: bold;
+    color: #111;
+    margin: 0 0 20px 0;
+    letter-spacing: 2px;
+    border-bottom: 2px dashed #666;
+    padding-bottom: 10px;
+    width: 100%;
+    text-transform: uppercase;
+}
+
+#detail-title::before {
+    content: 'EVIDENCE LOG: ';
+    color: #cc0000; /* Red stamp vibe for prefix */
+}
+
+/* Make inner text look like typewriter ink */
+#detail-content p, #detail-content div {
+    font-family: var(--font-typewriter);
+    font-size: 16px;
+    line-height: 1.6;
+    color: #222;
+}
+
+/* Physical Buttons */
+.btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-family: var(--font-typewriter);
+    font-weight: bold;
+    color: #111;
+    background: #e8dbb8;
+    border: 2px solid #a89b78;
+    border-radius: 2px;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: all 0.1s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 15px;
+}
+
+.btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0px rgba(0,0,0,0.2);
+}
+
+.btn:hover:not(:disabled) {
+    background: #d4c495;
+}
+
+.btn:disabled {
+    background: #ccc;
+    color: #666;
+    border-color: #999;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Back Button / Red Tape Tab */
+#back-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #b32d2d;
+    color: #fdfbf7;
+    border: none;
+    padding: 6px 14px;
+    font-family: var(--font-typewriter);
+    font-size: 13px;
+    font-weight: bold;
+    transform: rotate(3deg);
+    box-shadow: 2px 3px 6px rgba(0,0,0,0.5);
+    border-radius: 2px;
+    z-index: 101;
+    margin: 0;
+    cursor: pointer;
+    /* Masking tape texture */
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(0,0,0,0.05) 5px, rgba(0,0,0,0.05) 10px);
+}
+
+#back-btn:hover {
+    background: #c93636;
+    transform: rotate(6deg) translateY(-2px);
+    box-shadow: 3px 5px 8px rgba(0,0,0,0.6);
+}
+
+#back-btn:active {
+    transform: rotate(6deg) translateY(1px);
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+}
+
+/* Physical Input Fields (Paper/LCD) */
+#detail-content input[type="text"],
+#detail-content input[type="password"],
+#detail-content input[type="number"] {
+    background: #e8dbb8; /* Manila paper matching the clipboard */
+    border: 2px solid #a89b78;
+    color: #111;
+    font-family: var(--font-typewriter);
+    font-size: 18px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    box-shadow: inset 2px 4px 6px rgba(0,0,0,0.4);
+    outline: none;
+    font-weight: bold;
+    margin-right: 10px;
+    letter-spacing: 2px;
+}
+
+#detail-content input:focus {
+    border-color: #5a4000;
+    background: #fdfbf7;
+}
+
+#log-panel {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#log-messages {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 15px;
+    margin-top: 5px;
+}
+
+#log-messages p {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dotted rgba(0,0,0,0.2);
+}
+
+#log-messages p:last-child {
+    border-bottom: none;
+}
